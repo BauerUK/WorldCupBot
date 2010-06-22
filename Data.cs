@@ -127,7 +127,7 @@ namespace WorldCupBot
 
             using (var c = MakeTextCommand(DataStrings.SELECT_NEXT_GAME))
             {
-                c.Parameters.AddWithValue("@now", DateTime.Now.Ticks);
+                c.Parameters.AddWithValue("@now", DateTime.UtcNow.Ticks);
 
                 using (var d = ExecuteData(c))
                 {
