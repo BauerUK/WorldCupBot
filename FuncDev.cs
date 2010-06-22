@@ -11,8 +11,9 @@ namespace WorldCupBot
 
         [Trigger('.', "dev",
             "Various developer info")]
-        private void Dev(IrcTrigger trigger)
+        public void Dev(IrcTrigger trigger)
         {
+            
             if (trigger.Arguments.Any())
             {
                 switch (trigger.Arguments[0].ToLower())
@@ -36,6 +37,7 @@ namespace WorldCupBot
                     case "github":
                         Output(trigger.Channel, "WorldCupBot github page: http://github.com/BauerUK/WorldCupBot");
                         break;
+
                 }
             }
             else

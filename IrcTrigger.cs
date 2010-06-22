@@ -32,7 +32,8 @@ namespace WorldCupBot
                 ircTrigger.Nick = e.Data.Nick;
                 ircTrigger.Host = e.Data.Host;
                 ircTrigger.Message = m.Groups["args"].Value;
-                ircTrigger.Arguments = m.Groups["args"].Value.Split(new char[] { ' ' });
+                ircTrigger.Arguments = m.Groups["args"].Value.Contains(" ") ? m.Groups["args"].Value.Split(new char[] { ' ' }) : 
+                    new string[]{};
                 ircTrigger.Trigger = m.Groups["trigger"].Value;
                 return true;
             }
