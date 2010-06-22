@@ -13,7 +13,6 @@ namespace WorldCupBot
             "Various developer info")]
         public void Dev(IrcTrigger trigger)
         {
-            
             if (trigger.Arguments.Any())
             {
                 switch (trigger.Arguments[0].ToLower())
