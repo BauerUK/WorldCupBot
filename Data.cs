@@ -21,7 +21,7 @@ namespace WorldCupBot
             public const string CONECTION = "SERVER={0}; DATABASE={1}; UID={2}; PASSWORD={3}";
             public const string SELECT_TEAM = "SELECT * FROM `teams` WHERE `id` = @id";
             public const string SEARCH_TEAM = "SELECT * FROM `teams` WHERE `code` = UCASE(@query) OR UCASE(`name`) LIKE UCASE(@query) LIMIT 1;";
-            public const string SELECT_NEXT_GAME = "SELECT * FROM `schedule` WHERE `dateTime` > @now ORDER BY `dateTime` LIMIT 1";
+            public const string SELECT_NEXT_GAME = "SELECT * FROM `schedule` WHERE `dateTime` > @now ORDER BY `dateTime` ASC";
             public const string SELECT_NEXT_TEAM_GAME = "SELECT * FROM `schedule` WHERE `dateTime` > @now AND (`teamA`=@team OR `teamB`=@team) ORDER BY `dateTime` LIMIT 1";
             public const string SELECT_GAME_BY_DATE = "SELECT * FROM `schedule` WHERE `dateTime` < @tonight AND `dateTime` > @morning";
             public const string UPDATE_SCORE = "UPDATE `schedule` SET `teamA_score`=@scoreA, `teamB_score`=@scoreB WHERE `id`=@id";
@@ -118,12 +118,12 @@ namespace WorldCupBot
         }
 
         /// <summary>
-        /// Get the next scheduled game
+        /// Get the next scheduled game(s)
         /// </summary>
-        /// <returns>The next scheduled game, or null if none exists</returns>
-        public Game GetNextGame()
+        /// <returns>The next scheduled game(s), or an empty array if none exist</returns>
+        public Game[] GetNextGames()
         {
-            Game g = null;
+            List<Game> g = new List<Game>();
 
             using (var c = MakeTextCommand(DataStrings.SELECT_NEXT_GAME))
             {
@@ -133,14 +133,21 @@ namespace WorldCupBot
                 {
                     if (d.Rows.Count > 0)
                     {
-                        var r = d.Rows[0];
-                        g = MakeGame(r);
+                        long nextGameTime = d.Rows[0].Field<Int64>("dateTime");
+                        
+                        foreach (DataRow r in d.Rows)
+                        {
+                            if (r.Field<Int64>("dateTime") == nextGameTime)
+                            {
+                                g.Add(MakeGame(r));
+                            }
+                        }
 
                     }
                 }
             }
 
-            return g;
+            return g.ToArray();
         }
 
         /// <summary>
@@ -174,9 +181,9 @@ namespace WorldCupBot
         /// </summary>
         /// <param name="teamName">The team name to search within</param>
         /// <returns>The next game for the given team</returns>
-        public Game GetNextGame(string teamName)
+        public Game[] GetNextTeamGame(string teamName)
         {
-            Game g = null;
+            List<Game> g = new List<Game>();
 
             Team t = SearchTeam(teamName);
             
@@ -192,12 +199,12 @@ namespace WorldCupBot
                         if (d.Rows.Count > 0)
                         {
                             var r = d.Rows[0];
-                            g = MakeGame(r);
+                            g.Add(MakeGame(r));
                         }
                     }
                 }
             }
-            return g;
+            return g.ToArray();
         }
 
         /// <summary>

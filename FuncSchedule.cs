@@ -89,24 +89,27 @@ namespace WorldCupBot
             "<b>.nextgame|nextg|ngame|ng [<u>TEAM</u>]</b><br>Returns: how long until the next game. If a <u>TEAM</u> is given, how long until the next game for that team.")]
         public void Next(IrcTrigger trigger)
         {
-            string responseFormat = "Next Game: {0} vs. {1} - Kick off {2}";
+            string gameFormat = "{0} vs. {1}";
+            string responseFormat = "Next game{0}: {1} - Kick off in {2}";
 
             string response = null;
 
-            Game g = null;
+            Game[] g = null;
             
             if (!string.IsNullOrEmpty(trigger.Message))
             {
-                g = d.GetNextGame(trigger.Message);
+                g = d.GetNextTeamGame(trigger.Message);
             }
             else
             {
-                g = d.GetNextGame();
+                g = d.GetNextGames();
             }
 
-            if (g != null)
+            if (g !=null && g.Any())
             {
-                response = string.Format(responseFormat, g.TeamA.Name, g.TeamB.Name, Helpers.Time.ReadableDifference(g.DateTime));
+                //response = string.Format(responseFormat, g.TeamA.Name, g.TeamB.Name, Helpers.Time.ReadableDifference(g.DateTime));
+                string games =  string.Join(", ", g.Select(q => string.Format(gameFormat, q.TeamA.Name, q.TeamB.Name)));
+                response = string.Format(responseFormat, (g.Count() > 1 ? "s" : ""), games, Helpers.Time.ReadableDifference(g.First().DateTime));
             }
             else
             {
