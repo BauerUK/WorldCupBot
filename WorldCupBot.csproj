@@ -68,6 +68,7 @@
     <Compile Include="Data.cs" />
     <Compile Include="FuncDev.cs" />
     <Compile Include="FuncSchedule.cs" />
+    <Compile Include="FuncTable.cs" />
     <Compile Include="Function.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="IrcTrigger.cs" />
@@ -77,6 +78,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="bot.conf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="debug.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data.conf">

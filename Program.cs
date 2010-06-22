@@ -24,11 +24,31 @@ namespace WorldCupBot
         
         static void Main(string[] args)
         {
+            string confFile = "bot.conf";
+
+            // accept some console arguments
+            if (args.Length > 0)
+            {
+                foreach (string arg in args)
+                {
+                    string[] nv = arg.Split(new char[] { '=' });
+                    switch (nv[0])
+                    {
+                        //config file
+                        case "-c":
+                        case "-config":
+                            confFile = nv[1];
+                            break;
+                    }
+                }
+            }
+
             // load the configuration information first
             // since other things will rely on it.
             try
             {
-                conf = new IniConfigSource(Path.Combine(Environment.CurrentDirectory, "bot.conf"));
+                System.Console.WriteLine("Using config: " + confFile);
+                conf = new IniConfigSource(Path.Combine(Environment.CurrentDirectory,confFile));
             }
             catch (IOException ioe)
             {
