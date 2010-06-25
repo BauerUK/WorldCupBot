@@ -141,12 +141,16 @@ namespace WorldCupBot
 
             int yellows = 0;
             int reds = 0;
+            int redsSecondYellow = 0;
             int shotsOnTarget = 0;
             string passCompetion = "0%";
 
             int.TryParse(stats["YELLOW CARDS"], out yellows);
             int.TryParse(stats["RED CARDS"], out reds);
             int.TryParse(stats["SHOTS (ON TARGET)"], out shotsOnTarget);
+            int.TryParse(stats["SECOND YELLOW RED CARD"], out redsSecondYellow);
+
+            reds = reds + redsSecondYellow;
 
             passCompetion = stats["PASSES COMPLETION RATE"];
 
