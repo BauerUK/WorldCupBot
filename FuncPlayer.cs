@@ -27,9 +27,15 @@ namespace WorldCupBot
 
                 if (p != null)
                 {
-                    Output(trigger.Channel, string.Format(outputFormat, p.Name, p.KitNumber, p.Team, p.Goals, p.Fouls,
-                            p.Reds, p.Yellows, p.Shots, p.ShotsOnTarget, p.Passes, p.PassCompletion));
-
+                    if (p.HasData)
+                    {
+                        Output(trigger.Channel, string.Format(outputFormat, p.Name, p.KitNumber, p.Team, p.Goals, p.Fouls,
+                                p.Reds, p.Yellows, p.Shots, p.ShotsOnTarget, p.Passes, p.PassCompletion));
+                    }
+                    else
+                    {
+                        Output(trigger.Channel, "I know who " + p.Name + " is, but I have no data for him.");
+                    }
                 }
                 else
                 {
@@ -72,7 +78,8 @@ namespace WorldCupBot
                 HtmlDocument playerDoc = new HtmlDocument();
                 playerDoc.LoadHtml(download(rel));
 
-                return Player.MakePlayer(playerDoc);
+                Player result = Player.MakePlayer(playerDoc);
+                p = result;
             }
 
             return p;
@@ -97,67 +104,77 @@ namespace WorldCupBot
         public int ShotsOnTarget { get; private set; }
         public int Passes { get; private set; }
         public string PassCompletion { get; private set; }
+        public bool HasData { get; private set; }
 
         public static Player MakePlayer(HtmlDocument fifaDocument)
         {
             Player p = new Player();
 
             var mainStats = fifaDocument.DocumentNode.SelectNodes("//p[@class=\"val\"]");
-
-            int goals = 0;
-            int fouls = 0;
-            int shots = 0;
-            int passes = 0;
-            int kitNumber = 0;
-
-            int.TryParse(mainStats[0].InnerText, out goals);
-            int.TryParse(mainStats[1].InnerText, out fouls);
-            int.TryParse(mainStats[2].InnerText, out shots);
-            int.TryParse(mainStats[3].InnerText, out passes);
-
-            p.Goals = goals;
-            p.Fouls = fouls;
-            p.Shots = shots;
-            p.Passes = passes;
-
             var playerInfo = fifaDocument.DocumentNode.SelectNodes("//a[@class=\"firstColor\"]");
 
-            int.TryParse(playerInfo[0].InnerText, out kitNumber);
-
-            p.KitNumber = kitNumber;
-
-            p.Team = playerInfo[2].InnerText;
-            p.Name = playerInfo[1].InnerText;
-
-            var labels = fifaDocument.DocumentNode.SelectNodes("//div[@class=\"label\"]");
-
-            Dictionary<string, string> stats = new Dictionary<string, string>();
-
-            foreach (var label in labels)
+            if (playerInfo != null)
             {
-                stats.Add(label.InnerText.ToUpper(), label.NextSibling.InnerText);
+                int kitNumber = 0;
+                int.TryParse(playerInfo[0].InnerText, out kitNumber);
+
+                p.KitNumber = kitNumber;
+
+                p.Team = playerInfo[2].InnerText;
+                p.Name = playerInfo[1].InnerText;
             }
 
+            if (mainStats != null)
+            {
+                p.HasData = true;
 
-            int yellows = 0;
-            int reds = 0;
-            int redsSecondYellow = 0;
-            int shotsOnTarget = 0;
-            string passCompetion = "0%";
+                int goals = 0;
+                int fouls = 0;
+                int shots = 0;
+                int passes = 0;
+                
+                int.TryParse(mainStats[0].InnerText, out goals);
+                int.TryParse(mainStats[1].InnerText, out fouls);
+                int.TryParse(mainStats[2].InnerText, out shots);
+                int.TryParse(mainStats[3].InnerText, out passes);
 
-            int.TryParse(stats["YELLOW CARDS"], out yellows);
-            int.TryParse(stats["RED CARDS"], out reds);
-            int.TryParse(stats["SHOTS (ON TARGET)"], out shotsOnTarget);
-            int.TryParse(stats["SECOND YELLOW RED CARD"], out redsSecondYellow);
+                p.Goals = goals;
+                p.Fouls = fouls;
+                p.Shots = shots;
+                p.Passes = passes;
+                                
+                var labels = fifaDocument.DocumentNode.SelectNodes("//div[@class=\"label\"]");
 
-            reds = reds + redsSecondYellow;
+                Dictionary<string, string> stats = new Dictionary<string, string>();
 
-            passCompetion = stats["PASSES COMPLETION RATE"];
+                foreach (var label in labels)
+                {
+                    stats.Add(label.InnerText.ToUpper(), label.NextSibling.InnerText);
+                }
 
-            p.Yellows = yellows;
-            p.Reds = reds;
-            p.ShotsOnTarget = shotsOnTarget;
-            p.PassCompletion = passCompetion.Trim();
+
+                int yellows = 0;
+                int reds = 0;
+                int redsSecondYellow = 0;
+                int shotsOnTarget = 0;
+                string passCompetion = "0%";
+
+                int.TryParse(stats["YELLOW CARDS"], out yellows);
+                int.TryParse(stats["RED CARDS"], out reds);
+                int.TryParse(stats["SHOTS (ON TARGET)"], out shotsOnTarget);
+                int.TryParse(stats["SECOND YELLOW RED CARD"], out redsSecondYellow);
+
+                reds = reds + redsSecondYellow;
+
+                passCompetion = stats["PASSES COMPLETION RATE"];
+
+                p.Yellows = yellows;
+                p.Reds = reds;
+                p.ShotsOnTarget = shotsOnTarget;
+                p.PassCompletion = passCompetion.Trim();
+            } else {
+                p.HasData = false;
+            }
 
             return p;
         }

@@ -85,7 +85,7 @@ namespace WorldCupBot
             try
             {
 
-                irc.SendDelay = (int)GetConf("bot", "delay");
+                irc.SendDelay = Convert.ToInt32(GetConf("bot", "delay"));
                 irc.ActiveChannelSyncing = true;
                 irc.Encoding = System.Text.Encoding.UTF8;
                 irc.AutoNickHandling = true;
