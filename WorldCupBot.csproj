@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>..\..\..\Svetlana\IRCBot\bin\Release\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="Meebey.SmartIrc4net, Version=0.4.0.34161, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Meebey.SmartIrc4net.dll</HintPath>
@@ -67,6 +70,7 @@
     <Compile Include="Colour.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="FuncDev.cs" />
+    <Compile Include="FuncPlayer.cs" />
     <Compile Include="FuncSchedule.cs" />
     <Compile Include="FuncTable.cs" />
     <Compile Include="Function.cs" />

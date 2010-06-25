@@ -152,6 +152,7 @@ namespace WorldCupBot
             functions.Add(new FuncSchedule());
             functions.Add(new FuncDev());
             functions.Add(new FuncTable());
+            functions.Add(new FuncPlayer());
         }
 
         static void irc_OnConnected(object sender, EventArgs e)

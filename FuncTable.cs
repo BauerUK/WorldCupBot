@@ -24,7 +24,6 @@ namespace WorldCupBot
             {
                 char group = trigger.Message.ToUpper()[0];
 
-                //group.ToString().ToUpper();
                 JObject jsonObject = JObject.Parse(new System.Net.WebClient().DownloadString(URL_TABLES));
 
                 JArray tables = (JArray)jsonObject["footballTables"]["table"];
