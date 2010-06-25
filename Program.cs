@@ -84,7 +84,8 @@ namespace WorldCupBot
             // now set up IRC and connect
             try
             {
-                irc.SendDelay = 200;
+
+                irc.SendDelay = (int)GetConf("bot", "delay");
                 irc.ActiveChannelSyncing = true;
                 irc.Encoding = System.Text.Encoding.UTF8;
                 irc.AutoNickHandling = true;
