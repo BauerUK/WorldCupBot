@@ -29,7 +29,7 @@ namespace WorldCupBot
             const int MINUTE = SECOND * 60;
             
             this.d = new Data();
-            update = new System.Timers.Timer(MINUTE * 1);
+            update = new System.Timers.Timer(MINUTE * 30);
             update.Elapsed += new System.Timers.ElapsedEventHandler(update_Elapsed);
             update.Start();
             CheckScores();
@@ -46,40 +46,47 @@ namespace WorldCupBot
             {
                 string json = wc.DownloadString(URL_JSON_SCORES);
 
-                JObject o = JObject.Parse(json);
-
-                JArray allMatches = (JArray)o["competition"][0]["match"];
-
-                var liveMatches = from match in allMatches
-                                  where (string)match["status"] != "FIXTURE"
-                                  select match;
-
-                foreach (var liveMatch in liveMatches)
+                if (json != null)
                 {
-                    var homeTeam = liveMatch["homeTeam"];
-                    int scoreA = homeTeam["score"].Value<int>();
+                    JObject o = JObject.Parse(json);
 
-                    var awayTeam = liveMatch["awayTeam"];
-                    int scoreB = awayTeam["score"].Value<int>();
-
-                    string broadcastUrl = (string)liveMatch["broadcastOnline"];
-                    
-                    int gameID = int.Parse(broadcastUrl.Substring(broadcastUrl.Length - 2,2));
-
-                    Game g = d.GetGame(gameID);
-
-                    if (g != null)
+                    if (o["competition"].Any())
                     {
+                        JArray allMatches = (JArray)o["competition"][0]["match"];
 
-                        if (g.TeamAScore != scoreA || g.TeamBScore != scoreB)
+
+                        var liveMatches = from match in allMatches
+                                          where (string)match["status"] != "FIXTURE"
+                                          select match;
+
+                        foreach (var liveMatch in liveMatches)
                         {
-                            // TODO: announce
+                            var homeTeam = liveMatch["homeTeam"];
+                            int scoreA = homeTeam["score"].Value<int>();
+
+                            var awayTeam = liveMatch["awayTeam"];
+                            int scoreB = awayTeam["score"].Value<int>();
+
+                            string broadcastUrl = (string)liveMatch["broadcastOnline"];
+
+                            int gameID = int.Parse(broadcastUrl.Substring(broadcastUrl.Length - 2, 2));
+
+                            Game g = d.GetGame(gameID);
+
+                            if (g != null)
+                            {
+
+                                if (g.TeamAScore != scoreA || g.TeamBScore != scoreB)
+                                {
+                                    // TODO: announce
+                                }
+
+                                this.d.UpdateScore(gameID, scoreA, scoreB);
+                            }
+
+
                         }
-
-                        this.d.UpdateScore(gameID, scoreA, scoreB);
                     }
-
-                    
                 }
 
             }
